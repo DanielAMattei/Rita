@@ -4,7 +4,7 @@
 \alias{SWTest}
 \title{Shapiro-Wilk Test}
 \usage{
-SWTest(data, alpha = 0.05, j = 1)
+SWTest(data, alpha = 0.05, j = 1, warn = T)
 }
 \arguments{
 \item{data}{Data of a univariate distribution for which the test statistic is computed
@@ -14,6 +14,9 @@ SWTest(data, alpha = 0.05, j = 1)
 
 \item{j}{The # hypotheses tested; used to compute a Bonferonni correction, if applicable;
 should remain at its default if multiple testing is not an issue (scalar)}
+
+\item{warn}{Used for printing a warning message when resampling is performed on 
+sample-sizes > 5000 or when testing is terminated for N < 3 (boolean)}
 }
 \value{
 An object including the test statistic, p-value, and a significance flag (list)
@@ -23,6 +26,11 @@ This function is a wrapper for shapiro.test() from the stats package. Options
 added include an ability to toggle a Bonferonni correction for significance, a
 corresponding significance flag, and reorganized output to facilitate integration
 with the Rita package.
+}
+\details{
+Note that when the sample-size of the input vector is > 5000, resampling with
+replacement is used to proceed with hypothesis-testing with a vector of 5000 elements. 
+When N < 3, testing is terminated.
 }
 \examples{
 values <- rnorm(100)

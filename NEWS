@@ -1,0 +1,44 @@
+### Rita 1.1.0
+
+## MINOR CHANGES:
+
+# Rita():
+
+- Numeric columns with 2 distinct values or less are now removed prior to analysis.
+
+- Minor formatting of missing values output.
+
+# SWTest():
+
+- SWTest() now has a new argument, warn, which indicates whether a warning should be printed when resampling is used
+  or if the test is terminated, and its documentation is updated accordingly.
+
+- When the sample-size is less than 3 and warn = T, the SWTest() function will terminate the test.
+
+- When the sample-size is greater than 5000 and warn = T, the SWTest() function will now resample values with replacement 
+  from the input object and perform the test on the resulting vector.
+
+# JBTest():
+  
+- JBTest() now has a new argument, warn, which indicates whether a warning should be printed when bootstrapping is 
+  used or if the test is terminated, and its documentation is updated accordingly. 
+
+- When the sample-size is less than 4 and warn = T, the JBTest() function will now return a message
+  indicating that the Jarque-bera test could not be performed.
+
+- When the sample-size is greater than 4 and < 2000, and warn = T, the JBTest() function will now return a message
+  indicating that boostrapping is used to obtain the p-value.
+
+# DPTest():
+
+- DPTest() now has a new argument, warn, which indicates whether a warning should be printed when the test is
+  terminated, and its documentation is updated accordingly. 
+
+- When the sample-size is less than 8 and warn = T, the DPTest() will now return a message
+  indicating that the D'agostino Pearson Omnibus test could not be performed.
+
+# logitXform():
+
+- An additional variant of the empirical logit transformation is now used if output of the original empirical
+  logit method consists of a single distinct value. This is accomplished through the use of a new argument, divisor,
+  which modifies epsilon as needed and should not be changed by the user.

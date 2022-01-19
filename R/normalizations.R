@@ -153,9 +153,11 @@ arcsineXform <- function(sample) {
 #' although transformed values are not expected to outperform more suitable transformations.
 #'
 #' Then, the empirical logit transformation is applied to avoid zeroes or ones, and the data
-#' are transformed by taking the log-odds/logit of each value.
+#' are transformed by taking the log-odds/logit of each value. 
 #'
 #' @param sample The input data (vector, matrix, or dataframe)
+#' @param divisor Number used to modify epsilon enroute to the empirical logit, in cases of output 
+#'                consisting of a single distinct value (scalar)
 #'
 #' @return The logit-transformed data (vector)
 #' @export
@@ -166,10 +168,13 @@ arcsineXform <- function(sample) {
 #'
 #'             Osborne, J. W. (2002). The Effects of Minimum Values on Data Transformations. Retrieved from https://files.eric.ed.gov/fulltext/ED463313.pdf
 #'
+#'             Warton, D. I., & Hui, F. K. (2011). The arcsine is asinine: the analysis of proportions in ecology. Ecology, 92(1), 3-10.
+#'
 #' @examples
 #' values <- rnorm(100)
 #' x <- logitXform(values)
-logitXform <- function(sample) {
+logitXform <- function(sample, divisor = 2) {
+ initSample <- sample 
  # Coerce tables stored in arrays to vector form:
  sample <- as.vector(sample)
 
@@ -193,10 +198,30 @@ logitXform <- function(sample) {
  }
  # Replace zeroes and ones with a variant of the
  # empirical logit transformation, if needed:
- epsilon <- .5 * unique(sort(sample))[2]
- sample[sample == 0] <- .5 * unique(sort(sample))[2]
- sample[sample == 1] <- 1 - epsilon
- sample <- qlogis(sample)
+ if (length(unique(sample)) > 2) {
+   epsilon <- .5 * unique(sort(sample))[2]
+   sample[sample == 0] <- .5 * unique(sort(sample))[2]
+   sample[sample == 1] <- 1 - epsilon
+ } else {
+   # For insufficient range of distinct values, perform epirical logit as recommended by
+   # Warton & Hui (2011):
+   epsilon <- min(unique(sample[sample > 0 & sample < 1]))
+   # Tweak Warton * Hui method to avoid output of a single distinct value, if needed:
+   if (epsilon == (1 - epsilon)) {
+    sample[sample == 0] <- epsilon - (epsilon / divisor)
+    sample[sample == 1] <- (1 - epsilon) + (epsilon / divisor)
+     # Performs Warton & Hui without tweaks:
+     } else {
+       sample[sample == 0] <- epsilon
+       sample[sample == 1] <- 1 - epsilon
+     }
+ } 
+ sample <- suppressWarnings(qlogis(sample))
+   
+   if (is.nan(sum(sample)) == T) {
+     i <- 1 + epsilon
+     logitXform(initSample, divisor = i)
+   } 
 
  return(sample)
 }

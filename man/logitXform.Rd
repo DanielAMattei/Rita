@@ -4,10 +4,13 @@
 \alias{logitXform}
 \title{Logit/Log-Odds Transformation}
 \usage{
-logitXform(sample)
+logitXform(sample, divisor = 2)
 }
 \arguments{
 \item{sample}{The input data (vector, matrix, or dataframe)}
+
+\item{divisor}{Number used to modify epsilon enroute to the empirical logit, in cases of output 
+consisting of a single distinct value (scalar)}
 }
 \value{
 The logit-transformed data (vector)
@@ -40,4 +43,6 @@ Stevens, S., Valderas, J. M., Doran, T., Perera, R., & Kontopantelis, E. (2016).
             Osborne, J. W. (2002). Notes on the use of data transformations. Practical Assessment, Research and Evaluation, 9(1), 42-50.
 
             Osborne, J. W. (2002). The Effects of Minimum Values on Data Transformations. Retrieved from https://files.eric.ed.gov/fulltext/ED463313.pdf
+
+            Warton, D. I., & Hui, F. K. (2011). The arcsine is asinine: the analysis of proportions in ecology. Ecology, 92(1), 3-10.
 }

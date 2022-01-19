@@ -8,8 +8,9 @@
 #' visualizations of the best performing method to the user.
 #'
 #' Any rows with missing values (NAs) are removed for calculation purposes; if desired,
-#' incomplete records should be imputed prior to calling Rita. In addition, note that any
-#' columns not numeric type or coercible to numeric are by excluded from analysis.
+#' incomplete records should be imputed or removed with subsetting prior to calling Rita. 
+#' In addition, note that any columns not numeric type or coercible to numeric are excluded 
+#' from analysis, as are any numeric columns with 2 distinct values or less.
 #'
 #' @param data Input dataset (matrix, dataframe, or vector).
 #'             For a univariate distribution, submit a vector or a subsetted
@@ -48,7 +49,7 @@
 #'              Similarly, the arc-sine and logit transformations are applied after converting the units,
 #'              if needed, to ensure that variables are bounded between 0 and 1.
 #'
-#'      	      The "best performing" method is identified by comparing goodness-of-fit to the
+#'      	    The "best performing" method is identified by comparing goodness-of-fit to the
 #'              straight line of the QQ plot for the quantiles of the data normalized by a given method
 #'              and the standard normal distribution. If a tie is present between transformations for a
 #'              variable, one of the best performing transformations is arbitrarily selected.
@@ -63,7 +64,7 @@
 #'
 #'          	  xform = 5: Arc-sine transform
 #'
-#'              xform = 6: Logit transform
+#'                xform = 6: Logit transform
 #'
 #'          	  xform = 7: Rankit transform
 #' @param alpha The two-sided decision threshold used for normality hypothesis-testing (scalar)
@@ -125,7 +126,7 @@ Rita <- function(data, test = 1, xform = 1, alpha = .05, j =1, autoPlot = T, his
 
   # Store values of columns coerced to numeric to distinguish non-numeric data:
   postData <- suppressWarnings(apply(postData,2,as.numeric))
-
+ 
   # Omit entire columns composed of NAs  + remove cols with uniform distributions:
   NAFL <- uniFL <- rep(0,ncol(postData))
   for (i in 1:ncol(postData)) {
@@ -143,15 +144,25 @@ Rita <- function(data, test = 1, xform = 1, alpha = .05, j =1, autoPlot = T, his
   }
   # Omit (at least) partially incomplete records:
   postData <- as.data.frame(na.omit(postData))
+
+  # Omit any numeric columns with 2 or less distinct values:
+  uniqueCount <- vector(mode = "list")
+  for (i in 1:ncol(postData)) {
+    if (length(unique(postData[,i])) <= 2) 
+      uniqueCount[[i]] <- i 
+  }
+  if (length(uniqueCount) >= 1)  {
+    postData <- postData[,-(unlist(uniqueCount))]
+    NAs <- NAs[-unlist(uniqueCount)]
+  }
+
   univNRow <- nrow(postData)
   univNCol <- ncol(postData)
-
   SD <- apply(postData,2,sd)
   # Obtain the population SD to compute 3rd + 4th moments:
   popSD <- popSD(SD,univNRow)
   skew <- mapply(skewCoeff,as.list(postData),popSD)
   kurt <- mapply(kurtCoeff,as.list(postData),popSD)
-
   # Create list object of descriptive statistics for the input data:
   preStats <- round(rbind(as.data.frame(apply(postData,2,summary)),SD,skew,kurt),3)
   dimnames(preStats)[[1]][7:9] <- c("SD","Skewness","Kurtosis")
@@ -212,6 +223,11 @@ Rita <- function(data, test = 1, xform = 1, alpha = .05, j =1, autoPlot = T, his
 						} else {
 						  "F"
 						}
+      # Detect if "Stat." row of noroutput = F, then impute all remaining values 
+      # to NA (this is a flag for wheher a norm test can't be conducted):
+      if (norOutput[1,i] == "F") {
+        norOutput[1:3,i] <- NA
+      }
     }
     rownames(norOutput) <- norRowNames
     colnames(norOutput) <- rep(norColNames[test],univNCol)
@@ -227,6 +243,11 @@ Rita <- function(data, test = 1, xform = 1, alpha = .05, j =1, autoPlot = T, his
 						  } else {
 							"F"
 						  }
+      }      
+      # Detect if "Stat." row of noroutput = F, then impute all remaining values 
+      # to NA (this is a flag for wheher a norm test can't be conducted):
+      if (norOutput[,i] == "F") {
+        norOutput[1:3,i] <- NA
       }
       rownames(norOutput) <- norRowNames
       colnames(norOutput) <- norColNames
@@ -332,11 +353,12 @@ Rita <- function(data, test = 1, xform = 1, alpha = .05, j =1, autoPlot = T, his
     cat("\n")
     message("Note: Plots are turned off.")
   }
+  # Print message informing which variables were removed for uniform values: 
   if (sum(uniFL) > 0) {
     cat("\n")
     message("Note: Variables ",paste(initVarNames,collapse = ", ")," were removed due to uniform values.")
   }
-  NAOutput <- paste("\nNo. missing values omitted from each column:", paste(dimnames(postData)[2][[1]],NAs, collapse = " ", sep = ": "),
+  NAOutput <- paste("\nNo. missing values omitted from each column:", paste(dimnames(postData)[2][[1]],NAs,collapse = " \n", sep = ": "),
 					paste("\nNo. rows omitted with missing values:", NARows, "\n", collapse = " "), collapse = " ", sep = "\n")
   cat(NAOutput,"\n")
   cat("Desc. Stats of Raw Variable(s):\n")
@@ -345,7 +367,7 @@ Rita <- function(data, test = 1, xform = 1, alpha = .05, j =1, autoPlot = T, his
   print(norAgg)
   if (test != 7)
   cat("Test type:", norColNames[test],"\n\n")
-
+ 
   return(list(xformBest,plots))
 }
 

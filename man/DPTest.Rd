@@ -4,7 +4,7 @@
 \alias{DPTest}
 \title{D'agostino Pearson Omnibus Test}
 \usage{
-DPTest(data, alpha = 0.05, j = 1)
+DPTest(data, alpha = 0.05, j = 1, warn = T)
 }
 \arguments{
 \item{data}{Data of a univariate distribution for which the test statistic is computed
@@ -14,6 +14,8 @@ DPTest(data, alpha = 0.05, j = 1)
 
 \item{j}{The # hypotheses tested; used to compute a Bonferonni correction, if applicable;
 should remain at its default if multiple testing is not an issue (scalar)}
+
+\item{warn}{Used for printing a warning message when testing is terminated for N < 8 (boolean)}
 }
 \value{
 An object including the test statistic, p-value, and a significance flag (list)

@@ -70,11 +70,17 @@ KSLTest <- function(data, alpha = .05, j = 1, warn = T) {
 #' corresponding significance flag, and reorganized output to facilitate integration
 #' with the Rita package.
 #'
+#' Note that when the sample-size of the input vector is > 5000, resampling with
+#' replacement is used to proceed with hypothesis-testing with a vector of 5000 elements. 
+#' When N < 3, testing is terminated.
+#'
 #' @param data Data of a univariate distribution for which the test statistic is computed
 #'             (vector)
 #' @param alpha The two-sided decision threshold used for hypothesis-testing
 #' @param j The # hypotheses tested; used to compute a Bonferonni correction, if applicable;
 #'          should remain at its default if multiple testing is not an issue (scalar)
+#' @param warn Used for printing a warning message when resampling is performed on 
+#'             sample-sizes > 5000 or when testing is terminated for N < 3 (boolean)
 #'
 #' @return An object including the test statistic, p-value, and a significance flag (list)
 #' @export
@@ -88,16 +94,40 @@ KSLTest <- function(data, alpha = .05, j = 1, warn = T) {
 #' @examples
 #' values <- rnorm(100)
 #' x <- SWTest(data = values)
-SWTest <- function(data, alpha = .05, j = 1) {
-  alpha <- alpha / j
-  data <- sort(data)
-  results <- shapiro.test(data)
-  sigFL <- results[[2]] < alpha
-  names(sigFL) <- "Sig."
-  stats <- list(round(results[[1]],3),round(results[[2]],3),sigFL)
-  names(stats[[2]]) <- "P-value"
+SWTest <- function(data, alpha = .05, j = 1, warn = T) {
+  n <- length(data)
+  if ( (n >= 3) & (n <= 5000)) {
+    alpha <- alpha / j
+    data <- sort(data)
+    results <- shapiro.test(data)
+    sigFL <- results[[2]] < alpha
+    names(sigFL) <- "Sig."
+    stats <- list(round(results[[1]],3),round(results[[2]],3),sigFL)
+    names(stats[[2]]) <- "P-value"
 
-  return(stats)
+    return(stats)
+  } else if (n > 5000) {
+    shuffled <- sample(data, size = 5000, replace = T)
+    alpha <- alpha / j
+    shuffled <- sort(shuffled)
+    results <- shapiro.test(shuffled)
+    sigFL <- results[[2]] < alpha
+    names(sigFL) <- "Sig."
+    stats <- list(round(results[[1]],3),round(results[[2]],3),sigFL)
+    names(stats[[2]]) <- "P-value"
+    
+    if (warn) {
+      warning("N > 5000: Resampling wih replacement for 5000 elements was performed 
+               on the input data.")
+    }
+
+    return(stats)
+  } else {
+    if (warn)
+      warning("Note: SW Test terminated due to N < 3.")
+
+    return(list( rep("F",3) ))
+  }
 }
 ###################################################################################
 #' Anderson-Darling Test
@@ -162,6 +192,7 @@ ADTest <- function(data, alpha = .05, j = 1) {
 #' @param alpha The two-sided decision threshold used for hypothesis-testing
 #' @param j The # hypotheses tested; used to compute a Bonferonni correction, if applicable;
 #'          should remain at its default if multiple testing is not an issue (scalar)
+#' @param warn Used for printing a warning message when testing is terminated for N < 8 (boolean)
 #'
 #' @return An object including the test statistic, p-value, and a significance flag (list)
 #' @export
@@ -176,7 +207,7 @@ ADTest <- function(data, alpha = .05, j = 1) {
 #' @examples
 #' values <- rnorm(100)
 #' x <- DPTest(data = values)
-DPTest <- function(data, alpha = .05, j = 1) {
+DPTest <- function(data, alpha = .05, j = 1, warn = T) {
   alpha <- alpha / j
   data <- sort(data)
   N <- length(data)
@@ -210,7 +241,14 @@ DPTest <- function(data, alpha = .05, j = 1) {
   names(p) <- "P-value"
   stats <- list(round(K,3),round(p,3),sigFL)
 
-  return(stats)
+  if (N >= 8) {
+    return(stats)
+  } else {
+    if (warn)
+      warning("Note: DP Test terminated due to N < 8.")
+
+    return(list( rep("F",3) ))
+  }
 }
 ###################################################################################
 #' Jarque-Bera Test
@@ -220,6 +258,7 @@ DPTest <- function(data, alpha = .05, j = 1) {
 #'
 #' Large samples (N >= 2000) use p-values obtained with reference to the chi-square
 #' distribution, whereas smaller samples output p-values obtained via bootstrapping.
+#' When N < 4, testing is terminated.
 #'
 #' @param data Data of a univariate distribution for which the test statistic is computed
 #'            (vector)
@@ -227,7 +266,9 @@ DPTest <- function(data, alpha = .05, j = 1) {
 #' @param j The # hypotheses tested; used to compute a Bonferonni correction, if applicable;
 #'          should remain at its default if multiple testing is not an issue (scalar)
 #' @param N_Sample The # samples used to generate the bootstrapped sampling distribution,
-#'                 in cases when N <= 2000 (scalar)
+#'                 in cases when N < 2000 (scalar)
+#' @param warn Used for printing a warning message when boostrapping is performed for 
+#'             sample-sizes < 2000 or when testing is terminated for N < 4 (boolean)
 #'
 #' @return An object including the test statistic, p-value, and a significance flag (list)
 #' @export
@@ -239,36 +280,61 @@ DPTest <- function(data, alpha = .05, j = 1) {
 #' @examples
 #' values <- rnorm(100)
 #' x <- JBTest(data = values)
-JBTest <- function(data, alpha = .05, j =1, N_Sample = 10000) {
+JBTest <- function(data, alpha = .05, j =1, N_Sample = 10000, warn = T) {
   alpha <- alpha / j
   data <- sort(data)
   N <- length(data)
   popSD <- popSD(sd(data),N)
 
-  # Compute the test statistic:
-  JB <- (N /6) * skewCoeff(data,popSD)^2 + (kurtCoeff(data,popSD)^2 / 4)
-
   # Compute p-value via chisq if N >= 2000:
   if (N >= 2000) {
+    # Compute the test statistic:
+    JB <- (N /6) * skewCoeff(data,popSD)^2 + (kurtCoeff(data,popSD)^2 / 4)
+
+    # Compute p:
     p <- pchisq(JB,df = 2, lower.tail = F)
+
+    sigFL <- p < alpha
+    names(sigFL) <- "Sig."
+    names(JB) <- "JB"
+    names(p) <- "P-value"
+    stats <- list(round(JB,3),round(p,3),sigFL)
+
+    return(stats)
   # Compute p-value via simulation otherwise:
-  } else {
+  } else if (N >= 4) {
+    if (warn) {
+      warning("N < 2000: Output p-values obtained via bootstrapping.")
+    }
+
+    # Compute the test statistic:
+    JB <- (N /6) * skewCoeff(data,popSD)^2 + (kurtCoeff(data,popSD)^2 / 4)
+
     empDist <- rep(NA,N_Sample)
     parent <- rep(NA,N)
     for (i in 1:N_Sample) {
       parent <- data[sample(1:N,N, replace = T)]
       empDist[i] <- (N / 6) * skewCoeff(parent,popSD(sd(parent),N))^2 + (kurtCoeff(parent,popSD(sd(parent),N))^2 / 4)
+
     }
+
+    # Compute p:
     p <- ecdf(empDist)(JB)
+
+    sigFL <- p < alpha
+    names(sigFL) <- "Sig."
+    names(JB) <- "JB"
+    names(p) <- "P-value"
+    stats <- list(round(JB,3),round(p,3),sigFL)
+
+    return(stats)
+  #Terminate testing when N < 4:
+  } else {
+    if (warn)
+      warning("Note: JB Test terminated due to N < 4.")
+
+    return(list( rep("F",3) ))    
   }
-
-  sigFL <- p < alpha
-  names(sigFL) <- "Sig."
-  names(JB) <- "JB"
-  names(p) <- "P-value"
-  stats <- list(round(JB,3),round(p,3),sigFL)
-
-  return(stats)
 }
 ###################################################################################
 #' Chi-Square Test

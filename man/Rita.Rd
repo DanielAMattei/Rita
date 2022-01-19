@@ -59,7 +59,7 @@ it is recommended to call Rita repeatedly for each variable.}
              Similarly, the arc-sine and logit transformations are applied after converting the units,
              if needed, to ensure that variables are bounded between 0 and 1.
 
-               The "best performing" method is identified by comparing goodness-of-fit to the
+             The "best performing" method is identified by comparing goodness-of-fit to the
              straight line of the QQ plot for the quantiles of the data normalized by a given method
              and the standard normal distribution. If a tie is present between transformations for a
              variable, one of the best performing transformations is arbitrarily selected.
@@ -74,7 +74,7 @@ it is recommended to call Rita repeatedly for each variable.}
 
                xform = 5: Arc-sine transform
 
-             xform = 6: Logit transform
+               xform = 6: Logit transform
 
                xform = 7: Rankit transform}
 
@@ -135,8 +135,9 @@ visualizations of the best performing method to the user.
 }
 \details{
 Any rows with missing values (NAs) are removed for calculation purposes; if desired,
-incomplete records should be imputed prior to calling Rita. In addition, note that any
-columns not numeric type or coercible to numeric are by excluded from analysis.
+incomplete records should be imputed or removed with subsetting prior to calling Rita. 
+In addition, note that any columns not numeric type or coercible to numeric are excluded 
+from analysis, as are any numeric columns with 2 distinct values or less.
 }
 \examples{
 values <- rnorm(100)

@@ -4,7 +4,7 @@
 \alias{JBTest}
 \title{Jarque-Bera Test}
 \usage{
-JBTest(data, alpha = 0.05, j = 1, N_Sample = 10000)
+JBTest(data, alpha = 0.05, j = 1, N_Sample = 10000, warn = T)
 }
 \arguments{
 \item{data}{Data of a univariate distribution for which the test statistic is computed
@@ -16,7 +16,10 @@ JBTest(data, alpha = 0.05, j = 1, N_Sample = 10000)
 should remain at its default if multiple testing is not an issue (scalar)}
 
 \item{N_Sample}{The # samples used to generate the bootstrapped sampling distribution,
-in cases when N <= 2000 (scalar)}
+in cases when N < 2000 (scalar)}
+
+\item{warn}{Used for printing a warning message when boostrapping is performed for 
+sample-sizes < 2000 or when testing is terminated for N < 4 (boolean)}
 }
 \value{
 An object including the test statistic, p-value, and a significance flag (list)
@@ -28,6 +31,7 @@ Pearson skewness and kurtosis coefficients.
 \details{
 Large samples (N >= 2000) use p-values obtained with reference to the chi-square
 distribution, whereas smaller samples output p-values obtained via bootstrapping.
+When N < 4, testing is terminated.
 }
 \examples{
 values <- rnorm(100)
