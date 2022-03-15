@@ -16,6 +16,7 @@ Rita(
   stripPlot = F,
   violinPlot = F,
   xformPlot = F,
+  return = T,
   seed = 10
 )
 }
@@ -119,7 +120,11 @@ should remain at its default if multiple testing is not an issue (scalar)}
 
 \item{xformPlot}{Whether to draw density plots for each transformed variable (boolean).}
 
-\item{seed}{Number used for reproduction of random number generator results (scalar)}
+\item{return}{Whether to return the transformed variables of the best performing method 
+(return = T; default), or the cleaned, untransformed variables eligible for 
+transformation (return = F) (boolean).}
+
+\item{seed}{Number used for reproduction of random number generator results (scalar).}
 }
 \value{
 An object containing the dataset of the best performing transformation for

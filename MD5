@@ -1,8 +1,8 @@
-705eea01ac549994be516ee0bb725dfc *DESCRIPTION
+25e54ad202a2ca538a118ecdcc22691f *DESCRIPTION
 d9f956835f90c86fa6ee90d3e4926cfc *LICENSE
 a26e91ad36889df0e0c644cb91c99026 *NAMESPACE
-bddedd74fd58bae134eb7d15d8347d87 *NEWS
-0216e028399a13dc22ba119256d06a31 *R/master_Functions.R
+3b7246ee2ef1487e1982e1964bf08d53 *NEWS
+f574eb422db72e8df778023446b59538 *R/master_Functions.R
 6ad025470491d045e5cc366a99ab23d1 *R/moments.R
 7b4f420fcbaa0aff86778c5675270c0a *R/normal_Tests.R
 f817470236845c11390cab731c3625ca *R/normalizations.R
@@ -12,7 +12,7 @@ f817470236845c11390cab731c3625ca *R/normalizations.R
 5b0619fee1978bc4b373e4f49d93a07d *man/KSLTest.Rd
 abc774a9ede10e0cdb42f4b3c93f95b2 *man/MasterTest.Rd
 2ab2da922e3c160fe9111fca005817fa *man/MasterXform.Rd
-d975207d016def40a6a630d051bf969e *man/Rita.Rd
+2ff101e1e8b0a466ba71361d468efe91 *man/Rita.Rd
 f6ec240f80f8264de8d7f2d99a41cde4 *man/SWTest.Rd
 eec28b48c86a452e341baf8303923b7e *man/arcsineXform.Rd
 9e932e182a2b93c0f3494788b609885f *man/chisqTest.Rd

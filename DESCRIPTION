@@ -1,7 +1,7 @@
 Package: Rita
 Type: Package
 Title: Automated Transformations, Normality Testing, and Reporting
-Version: 1.1.0
+Version: 1.2.0
 Authors@R: 
     c(
       person("Daniel", "Mattei", email = "DMattei@live.com", role = c("aut","cre")),
@@ -23,9 +23,9 @@ Encoding: UTF-8
 Imports: base, stats, lattice
 RoxygenNote: 7.1.2
 NeedsCompilation: no
-Packaged: 2022-01-19 22:42:10 UTC; Daniel
+Packaged: 2022-03-15 14:32:35 UTC; Daniel
 Author: Daniel Mattei [aut, cre],
   John Ruscio [aut]
 Maintainer: Daniel Mattei <DMattei@live.com>
 Repository: CRAN
-Date/Publication: 2022-01-19 22:52:40 UTC
+Date/Publication: 2022-03-15 14:50:07 UTC

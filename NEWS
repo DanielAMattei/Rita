@@ -1,3 +1,14 @@
+### Rita 1.2.0
+
+## MINOR CHANGES:
+
+# Rita():
+
+- Rita() now has a new argument, return, which indicates whether the transformed variables of the best performing method 
+  are returned (return = T; default), or the cleaned, untransformed values and variables that are eligible for 
+  transformation (return = F).
+
+
 ### Rita 1.1.0
 
 ## MINOR CHANGES:

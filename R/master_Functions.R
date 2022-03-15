@@ -101,7 +101,10 @@
 #' @param stripPlot Whether to draw strip plots for each variable (boolean).
 #' @param violinPlot Whether to draw violin plots for each variable (boolean).
 #' @param xformPlot Whether to draw density plots for each transformed variable (boolean).
-#' @param seed Number used for reproduction of random number generator results (scalar)
+#' @param return Whether to return the transformed variables of the best performing method 
+#'        (return = T; default), or the cleaned, untransformed variables eligible for 
+#'        transformation (return = F) (boolean).
+#' @param seed Number used for reproduction of random number generator results (scalar).
 #'
 #' @return An object containing the dataset of the best performing transformation for
 #'         each variable and the specified plots (list)
@@ -111,7 +114,7 @@
 #' values <- rnorm(100)
 #' x <- Rita(data = values)
 Rita <- function(data, test = 1, xform = 1, alpha = .05, j =1, autoPlot = T, histPlot = F, densPlot = F,
-                 stripPlot = F, violinPlot = F, xformPlot = F, seed = 10) {
+                 stripPlot = F, violinPlot = F, xformPlot = F, return = T, seed = 10) {
   # Set a seed:
   set.seed(seed)
 
@@ -368,7 +371,11 @@ Rita <- function(data, test = 1, xform = 1, alpha = .05, j =1, autoPlot = T, his
   if (test != 7)
   cat("Test type:", norColNames[test],"\n\n")
  
-  return(list(xformBest,plots))
+  if (return) {
+    return(list(xformBest,plots))
+  } else {
+    return(list(postData,plots))
+  }
 }
 
 ####################################################################################
